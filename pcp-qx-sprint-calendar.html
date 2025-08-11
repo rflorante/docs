@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCP-QX Agile Sprint Calendar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 4px solid #e2e8f0;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(135deg, #0f2027, #2c5364);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: 20px;
+            margin-bottom: 35px;
+            box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .team-category {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-top: 4px solid;
+        }
+
+        .team-category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .management-team {
+            border-top-color: #3b82f6;
+            background: linear-gradient(to bottom, rgba(59, 130, 246, 0.05), white);
+        }
+
+        .technical-team {
+            border-top-color: #8b5cf6;
+            background: linear-gradient(to bottom, rgba(139, 92, 246, 0.05), white);
+        }
+
+        .quality-team {
+            border-top-color: #10b981;
+            background: linear-gradient(to bottom, rgba(16, 185, 129, 0.05), white);
+        }
+
+        .team-category h3 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .role-item {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .role-item:hover {
+            background: #e2e8f0;
+            transform: translateX(5px);
+        }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85em;
+            color: white;
+            margin-right: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .pm { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .po { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .sm { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .tl { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .fe { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .be { background: linear-gradient(135deg, #30cfd0, #330867); }
+        .qa { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+        .uiux { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
+
+        .role-description {
+            flex: 1;
+        }
+
+        .role-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 3px;
+        }
+
+        .role-details {
+            font-size: 0.85em;
+            color: #64748b;
+            line-height: 1.4;
+        }
+
+        .schedule-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .schedule-box {
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .schedule-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        }
+
+        .dev-days {
+            background: linear-gradient(135deg, #d4fc79, #96e6a1);
+        }
+
+        .product-days {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+        }
+
+        .schedule-box h3 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .time-windows {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .time-slot {
+            padding: 10px 18px;
+            background: white;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .calendar-container {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 35px;
+            position: relative;
+        }
+
+        .sprint-header {
+            text-align: center;
+            font-size: 1.6em;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .week-label {
+            grid-row: span 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            color: white;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            writing-mode: vertical-lr;
+            text-orientation: mixed;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .day-header {
+            text-align: center;
+            font-weight: 700;
+            padding: 15px 5px;
+            border-radius: 12px;
+            font-size: 0.95em;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .day-header.dev-day {
+            background: linear-gradient(135deg, #d4fc79, #96e6a1);
+            color: #065f46;
+        }
+
+        .day-header.product-day {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            color: #9a3412;
+        }
+
+        .day-cell {
+            min-height: 160px;
+            border-radius: 15px;
+            padding: 12px;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .day-cell.dev-day {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 2px solid #86efac;
+        }
+
+        .day-cell.product-day {
+            background: linear-gradient(135deg, #fff7ed, #fed7aa);
+            border: 2px solid #fdba74;
+        }
+
+        .day-cell:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+        }
+
+        .day-number {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: #1e293b;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .day-label {
+            font-size: 0.85em;
+            color: #64748b;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .event {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 0.8em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .event:hover::before {
+            left: 100%;
+        }
+
+        .event:hover {
+            transform: translateX(3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .event-time {
+            font-size: 0.9em;
+            opacity: 0.9;
+            display: block;
+            margin-top: 3px;
+        }
+
+        .sprint-planning {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .daily-standup {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+        }
+
+        .backlog-grooming {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .sprint-review {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            color: white;
+        }
+
+        .sprint-retro {
+            background: linear-gradient(135deg, #30cfd0, #330867);
+            color: white;
+        }
+
+        .product-work {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            color: #9a3412;
+            border-left: 4px solid #fb923c;
+        }
+
+        .approval-meeting {
+            background: linear-gradient(135deg, #fecaca, #f87171);
+            color: white;
+            border-left: 4px solid #dc2626;
+        }
+
+        .participants {
+            font-size: 0.75em;
+            color: #64748b;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        .legend-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .legend-color {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .legend-text {
+            font-size: 0.9em;
+            color: #475569;
+            line-height: 1.3;
+        }
+
+        .sprint-end {
+            background: linear-gradient(135deg, #fecaca, #f87171);
+            border: 3px solid #dc2626;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 35px;
+        }
+
+        .note-box {
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+        }
+
+        .scrum-notes {
+            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+        }
+
+        .scrum-notes::before {
+            background: linear-gradient(90deg, #0ea5e9, #0284c7);
+        }
+
+        .product-notes {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+        }
+
+        .product-notes::before {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+
+        .note-box h3 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .note-box ul {
+            margin-left: 20px;
+            color: #475569;
+            line-height: 1.8;
+        }
+
+        .note-box li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 10px;
+        }
+
+        .note-box li::before {
+            content: '▸';
+            position: absolute;
+            left: -10px;
+            color: #3b82f6;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>2-Week Scrum Agile Sprint Calendar</h1>
+            <p class="subtitle">PCP-QX Development Team | Scrum.org Aligned Framework</p>
+        </div>
+
+        <div class="team-grid">
+            <div class="team-category management-team">
+                <h3>📊 Management Team</h3>
+                <div class="role-item">
+                    <span class="role-badge pm">PM</span>
+                    <div class="role-description">
+                        <div class="role-title">Project Manager</div>
+                        <div class="role-details">Oversees project delivery and timelines</div>
+                    </div>
+                </div>
+                <div class="role-item">
+                    <span class="role-badge po">PO</span>
+                    <div class="role-description">
+                        <div class="role-title">Product Owner</div>
+                        <div class="role-details">Owns product backlog and prioritization</div>
+                    </div>
+                </div>
+                <div class="role-item">
+                    <span class="role-badge sm">SM</span>
+                    <div class="role-description">
+                        <div class="role-title">Scrum Master</div>
+                        <div class="role-details">Facilitates ceremonies, removes impediments</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-category technical-team">
+                <h3>💻 Technical Team</h3>
+                <div class="role-item">
+                    <span class="role-badge tl">TL</span>
+                    <div class="role-description">
+                        <div class="role-title">Tech Lead</div>
+                        <div class="role-details">Architecture, mentorship, code reviews</div>
+                    </div>
+                </div>
+                <div class="role-item">
+                    <span class="role-badge fe">FE</span>
+                    <div class="role-description">
+                        <div class="role-title">Frontend Developer</div>
+                        <div class="role-details">UI implementation, UX optimization</div>
+                    </div>
+                </div>
+                <div class="role-item">
+                    <span class="role-badge be">BE</span>
+                    <div class="role-description">
+                        <div class="role-title">Backend Developer</div>
+                        <div class="role-details">API development, database, infrastructure</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-category quality-team">
+                <h3>✨ Quality & Design</h3>
+                <div class="role-item">
+                    <span class="role-badge qa">QA</span>
+                    <div class="role-description">
+                        <div class="role-title">QA Engineer</div>
+                        <div class="role-details">Testing, regression, UAT, performance</div>
+                    </div>
+                </div>
+                <div class="role-item">
+                    <span class="role-badge uiux">UI/UX</span>
+                    <div class="role-description">
+                        <div class="role-title">UI/UX Designer</div>
+                        <div class="role-details">Design systems, user research</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="schedule-info">
+            <div class="schedule-box dev-days">
+                <h3>🚀 Development Days</h3>
+                <p><strong>Monday, Thursday, Friday, Saturday, Sunday</strong></p>
+                <p style="margin-top: 10px;">Sprint ceremonies & active development</p>
+                <div class="time-windows">
+                    <span class="time-slot">🌅 7am-12pm PHT</span>
+                    <span class="time-slot">🌙 10pm-12am PHT</span>
+                </div>
+            </div>
+            <div class="schedule-box product-days">
+                <h3>📋 Product Preparation Days</h3>
+                <p><strong>Tuesday & Wednesday</strong></p>
+                <p style="margin-top: 10px;">PRD development, UI/UX sessions, CTO/CPO approvals</p>
+                <p style="margin-top: 8px; font-size: 0.9em; color: #666;">Preparing backlog for upcoming sprints</p>
+            </div>
+        </div>
+
+        <div class="calendar-container">
+            <div class="sprint-header">📅 Sprint Week 1</div>
+            <div class="calendar-grid">
+                <!-- Headers -->
+                <div></div>
+                <div class="day-header dev-day">Monday</div>
+                <div class="day-header product-day">Tuesday</div>
+                <div class="day-header product-day">Wednesday</div>
+                <div class="day-header dev-day">Thursday</div>
+                <div class="day-header dev-day">Friday</div>
+                <div class="day-header dev-day">Saturday</div>
+                <div class="day-header dev-day">Sunday</div>
+
+                <!-- Week 1 -->
+                <div class="week-label">WEEK 1</div>
+                <div class="day-cell dev-day">
+                    <div class="day-number">📍 Day 1</div>
+                    <div class="day-label">Sprint Start</div>
+                    <div class="event sprint-planning">
+                        📋 Sprint Planning
+                        <span class="event-time">9-11am OR 10-11:30pm</span>
+                        <div class="participants">PO, PM/SM, TL, UI/UX</div>
+                    </div>
+                    <div class="event daily-standup">
+                        🚀 Daily Standup
+                        <span class="event-time">11:30am OR 11:45pm</span>
+                        <div class="participants">Dev Team</div>
+                    </div>
+                </div>
+                <div class="day-cell product-day">
+                    <div class="day-number">📝 Day 2</div>
+                    <div class="day-label">Product Day</div>
+                    <div class="event product-work">
+                        📄 PRD Development
+                        <span class="event-time">Flexible (4 hrs)</span>
+                        <div class="participants">PO</div>
+                    </div>
+                    <div class="event product-work">
+                        🎨 UI/UX Alignment
+                        <span class="event-time">Flexible (2 hrs)</span>
+                        <div class="participants">PO, UI/UX, PM/SM</div>
+                    </div>
+                </div>
+                <div class="day-cell product-day">
+                    <div class="day-number">✅ Day 3</div>
+                    <div class="day-label">Product Day</div>
+                    <div class="event product-work">
+                        📊 PRD Refinement
+                        <span class="event-time">Morning (2 hrs)</span>
+                        <div class="participants">PO, PM/SM, TL</div>
+                    </div>
+                    <div class="event approval-meeting">
+                        🔐 CTO/CPO Approval
+                        <span class="event-time">Evening (1.5 hrs)</span>
+                        <div class="participants">PO, CTO, CPO</div>
+                    </div>
+                </div>
+                <div class="day-cell dev-day">
+                    <div class="day-number">💻 Day 4</div>
+                    <div class="day-label">Development</div>
+                    <div class="event daily-standup">
+                        🚀 Daily Standup
+                        <span class="event-time">9am OR 10pm</span>
+                        <div class="participants">Dev Team</div>
+                    </div>
+                    <div class="event backlog-grooming">
+                        📝 Backlog Grooming
+                        <span class="event-time">10-11am OR 10:30-11:30pm</span>
+                        <div class="participants">PO, PM/SM, TL</div>
+                    </div>
+                </div>
+                <div class="day-cell dev-day">
+                    <div class="day-number">⚡ Day 5</div>
+                    <div class="day-label">Development</div>
+                    <div class="event daily-standup">
+                        🚀 Daily Standup
+                        <span class="event-time">9am OR 10pm</span>
+                        <div class="participants">Dev Team</div>
+                    </div>
+                </div>
+                <div class="day-cell dev-day">
+                    <div class="day-number">🔧 Day 6</div>
+                    <div class="day-label">Development</div>
+                    <div class="event daily-standup">
+                        🚀 Daily Standup
+                        <span class="event-time">9am OR 10pm</span>
+                        <div class="participants">Dev Team</div>
+                    </div>
+                </div>
+                <div class="day-cell dev-day">
+                    <div class="day-number">📈 Day 7</div>
+                    <div class="day-label">Week Close</div>
+                    <div class="event daily-standup">
+                        🚀 Daily Standup
+                        <span class="event-time">9am OR 10pm</span>
+                        <div class="participants">Dev Team</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="calendar-container">
+            <div class="sprint-header">📅 Sprint Week 2</div>
+            <div class="calendar-grid">
+                <!-- Headers -->
+                <div></div>
+                <div class="day-header dev-day">Monday</div>
+                <div class="day-header product-day">Tuesday</div>
+                <div class="day-header product-day">Wednesday</div>
+                <div class="day-header dev-day">Thursday</div>
+                <div class="day-header dev-day">Friday</div>
+                <div class="day-header dev-day">Saturday</div>
+                <div class="day-header dev-day">Sunday</div>
+
+                <!-- Week 2 -->
+                <div class="week-label">WEEK 2</div>
+                <div class="day-cell dev-day">
+                    <div class="day-number">🎯 Day 8</div>
+                    <div class="day-label">Week Start</div>
+                    <div class="event daily-standup">
+                        🚀 Daily Standup
+                        <span class="event-time">9am OR 10pm</span>
+                        <div class="participants">Dev Team</div>
+                    </div>
+                </div>
+                <div class="day-cell product-day">
+                    <div class="day-number">🔮 Day 9</div>
+                    <div class="day-label">Product Day</div>
+                    <div class="event product-work">
+                        📄 Next Sprint PRDs
+                        <span class="event-time">Morning (3 hrs)</span>
+                        <div class="participants">PO</div>
+                    </div>
+                    <div class="event product-work">
+                        🔍 User Research
+                        <span class="event-time">Evening (2 hrs)</span>
+                        <div class="participants">PO, UI/UX, PM/SM</div>
+                    </div>
+                </div>
+                <div class="day-cell product-day">
+                    <div class="day-number">📊 Day 10</div>
+                    <div class="day-label">Product Day</div>
+                    <div class="event product-work">
+                        📈 Sprint Metrics
+                        <span class="event-time">Morning (2 hrs)</span>
+                        <div class="participants">PO, PM/SM</div>
+                    </div>
+                    <div class="event approval-meeting">
+                        🔐 CTO/CPO Review
+                        <span class="event-time">Evening (1.5 hrs)</span>
+                        <div class="participants">PO, CTO, CPO</div>
+                    </div>
+                </div>
+                <div class="day-cell dev-day">
+                    <div class="day-number">🛠️ Day 11</div>
+                    <div class="day-label">Development</div>
+                    <div class="event daily-standup">
+                        🚀 Daily Standup
+                        <span class="event-time">9am OR 10pm</span>
+                        <div class="participants">Dev Team</div>
+                    </div>
+                    <div class="event backlog-grooming">
+                        📝 Backlog Grooming
+                        <span class="event-time">10-11am OR 10:30-11:30pm</span>
+                        <div class="participants">PO, PM/SM, TL</div>
+                    </div>
+                </div>
+                <div class="day-cell dev-day">
+                    <div class="day-number">🚢 Day 12</div>
+                    <div class="day-label">Development</div>
+                    <div class="event daily-standup">
+                        🚀 Daily Standup
+                        <span class="event-time">9am OR 10pm</span>
+                        <div class="participants">Dev Team</div>
+                    </div>
+                </div>
+                <div class="day-cell dev-day">
+                    <div class="day-number">🏁 Day 13</div>
+                    <div class="day-label">Final Push</div>
+                    <div class="event daily-standup">
+                        🚀 Daily Standup
+                        <span class="event-time">9am OR 10pm</span>
+                        <div class="participants">Dev Team</div>
+                    </div>
+                </div>
+                <div class="day-cell dev-day sprint-end">
+                    <div class="day-number">⭐ Day 14</div>
+                    <div class="day-label">SPRINT END</div>
+                    <div class="event sprint-review">
+                        🎯 Sprint Review
+                        <span class="event-time">9-10:30am OR 10-11pm</span>
+                        <div class="participants">All + Stakeholders</div>
+                    </div>
+                    <div class="event sprint-retro">
+                        🔄 Sprint Retrospective
+                        <span class="event-time">10:45-11:45am OR 11:15pm-12am</span>
+                        <div class="participants">Scrum Team</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+                <div class="legend-text"><strong>Sprint Planning</strong><br>2hrs (AM) / 1.5hrs (PM)</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #4facfe, #00f2fe);"></div>
+                <div class="legend-text"><strong>Daily Standup</strong><br>15 minutes</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #f093fb, #f5576c);"></div>
+                <div class="legend-text"><strong>Backlog Grooming</strong><br>1 hour</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fa709a, #fee140);"></div>
+                <div class="legend-text"><strong>Sprint Review</strong><br>1.5hrs (AM) / 1hr (PM)</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #30cfd0, #330867);"></div>
+                <div class="legend-text"><strong>Sprint Retrospective</strong><br>1hr (AM) / 45min (PM)</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #ffecd2, #fcb69f);"></div>
+                <div class="legend-text"><strong>Product Work</strong><br>PRD & Design Sessions</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #fecaca, #f87171);"></div>
+                <div class="legend-text"><strong>Approval Meetings</strong><br>CTO/CPO Reviews</div>
+            </div>
+        </div>
+
+        <div class="notes-grid">
+            <div class="note-box scrum-notes">
+                <h3>📚 Scrum.org Framework Alignment</h3>
+                <ul>
+                    <li><strong>Product Owner (PO):</strong> Manages product backlog, creates PRDs on Product Days, ensures value delivery through prioritization</li>
+                    <li><strong>Scrum Master (SM):</strong> Facilitates all ceremonies, coaches team on Scrum practices, removes impediments, protects team from disruptions</li>
+                    <li><strong>Development Team:</strong> Self-organizing unit including TL, FE, BE, QA, and UI/UX - collectively responsible for the Increment</li>
+                    <li><strong>Sprint Planning:</strong> PO presents priorities, team selects items and defines Sprint Goal with technical feasibility from TL</li>
+                    <li><strong>Daily Scrum:</strong> 15-minute sync for Development Team only - PM/SM may observe but not participate</li>
+                    <li><strong>Sprint Review:</strong> Demonstrate completed features, gather stakeholder feedback, adapt Product Backlog</li>
+                    <li><strong>Sprint Retrospective:</strong> Team inspects processes and creates improvement action items for next sprint</li>
+                </ul>
+            </div>
+            <div class="note-box product-notes">
+                <h3>🎯 Product Day Optimization Strategy</h3>
+                <ul>
+                    <li><strong>Tuesday Focus:</strong> PO develops comprehensive PRDs, collaborates with UI/UX on mockups and user flows</li>
+                    <li><strong>Wednesday Gates:</strong> CTO/CPO review ensures technical feasibility and business alignment before backlog entry</li>
+                    <li><strong>Continuous Pipeline:</strong> While dev team works Mon/Thu-Sun, PO prepares future sprints on Tue/Wed</li>
+                    <li><strong>Stakeholder Alignment:</strong> Product days enable customer interviews and market research without disrupting development</li>
+                    <li><strong>Design Integration:</strong> UI/UX runs design sprints and validates concepts before development begins</li>
+                    <li><strong>Backlog Health:</strong> Maintains 2-3 sprints of refined, approved items ready at all times</li>
+                    <li><strong>Executive Visibility:</strong> Regular CTO/CPO touchpoints ensure strategic alignment and resource allocation</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive hover effects with smooth animations
+        document.querySelectorAll('.event').forEach(event => {
+            event.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(5px) scale(1.02)';
+            });
+            event.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0) scale(1)';
+            });
+        });
+
+        // Add click interaction for role badges
+        document.querySelectorAll('.role-badge').forEach(badge => {
+            badge.addEventListener('click', function() {
+                this.style.transform = 'scale(1.2) rotate(5deg)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1) rotate(0)';
+                }, 300);
+            });
+        });
+
+        // Add day cell click to highlight
+        document.querySelectorAll('.day-cell').forEach(cell => {
+            cell.addEventListener('click', function() {
+                // Remove highlight from all cells
+                document.querySelectorAll('.day-cell').forEach(c => {
+                    c.style.borderColor = '';
+                    c.style.borderWidth = '';
+                });
+                // Add highlight to clicked cell
+                this.style.borderColor = '#3b82f6';
+                this.style.borderWidth = '3px';
+            });
+        });
+
+        // Animate sprint end cell
+        const sprintEndCell = document.querySelector('.sprint-end');
+        if (sprintEndCell) {
+            setInterval(() => {
+                sprintEndCell.style.boxShadow = '0 0 30px rgba(248, 113, 113, 0.5)';
+                setTimeout(() => {
+                    sprintEndCell.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.15)';
+                }, 1000);
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
